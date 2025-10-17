@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 6080
 
 spring:
   application:
@@ -13,7 +13,7 @@ mcp:
   server:
     name: "Account Management MCP Server"
     version: "1.0.0"
-    port: 8080
+    port: 6080
     transport: "stdio"
     tools:
       enabled: true

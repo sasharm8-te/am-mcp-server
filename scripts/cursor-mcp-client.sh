@@ -5,7 +5,7 @@
 
 set -e
 
-MCP_SERVER_URL=${MCP_SERVER_URL:-"http://localhost:8080/mcp"}
+MCP_SERVER_URL=${MCP_SERVER_URL:-"http://localhost:6080/mcp"}
 
 # Function to log debug messages (to stderr so it doesn't interfere with stdout)
 debug_log() {

@@ -18,7 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class CursorMCPClient:
-    def __init__(self, server_url: str = "http://localhost:8080/mcp"):
+    def __init__(self, server_url: str = "http://localhost:6080/mcp"):
         self.server_url = server_url.rstrip('/')
         logger.info(f"Initializing MCP client with server URL: {self.server_url}")
         
@@ -145,7 +145,7 @@ class CursorMCPClient:
             print(json.dumps(error_response), flush=True)
 
 if __name__ == "__main__":
-    server_url = os.getenv('MCP_SERVER_URL', 'http://localhost:8080/mcp')
+    server_url = os.getenv('MCP_SERVER_URL', 'http://localhost:6080/mcp')
     
     # Handle command line arguments for testing
     if len(sys.argv) > 1:

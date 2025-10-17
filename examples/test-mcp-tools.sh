@@ -5,7 +5,7 @@
 
 set -e
 
-BASE_URL="http://localhost:8080/mcp"
+BASE_URL="http://localhost:6080/mcp"
 
 echo "Testing CUI Integration MCP Server..."
 echo "Base URL: $BASE_URL"
