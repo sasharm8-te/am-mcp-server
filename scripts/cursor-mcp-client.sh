@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Cursor MCP Client Script for CUI Integration Server
+# Cursor MCP Client Script for Account Management MCP Server
 # This script acts as a bridge between Cursor and the HTTP-based MCP server
 
 set -e
