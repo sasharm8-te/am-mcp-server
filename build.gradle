@@ -1,0 +1,81 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'io.freefair.lombok' version '8.4'
+}
+
+group = 'com.thousandeyes.cui.mcp'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url teRepoUrl
+        credentials {
+            username teRepoUser
+            password teRepoPassword
+        }
+    }
+}
+
+dependencies {
+    // Spring Boot starters
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    
+    // Database
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'com.zaxxer:HikariCP'
+    
+    // JSON processing
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+    
+    // Metrics
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    
+    // Utilities
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'com.google.guava:guava:32.1.3-jre'
+    
+    // gRPC dependencies (matching main service version)
+    implementation 'io.grpc:grpc-netty-shaded:1.66.0'
+    implementation 'io.grpc:grpc-protobuf:1.66.0'
+    implementation 'io.grpc:grpc-stub:1.66.0'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+    
+    // Account Management Models
+    implementation 'com.thousandeyes.models:account-management-models:2.0.7'
+    
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mysql'
+    testRuntimeOnly 'com.h2database:h2'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+jar {
+    enabled = false
+}
+
+bootJar {
+    archiveFileName = 'cui-mcp-server.jar'
+}
+

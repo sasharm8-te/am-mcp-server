@@ -1,0 +1,35 @@
+# Build artifacts
+build/
+.gradle/
+bin/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+docs/
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/

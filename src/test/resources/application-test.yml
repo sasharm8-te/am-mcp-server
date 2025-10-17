@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: cui-integration-mcp-server-test
+  
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+
+# Override database config for tests
+database:
+  url: jdbc:h2:mem:testdb
+  username: sa
+  password: ""
+  driver-class-name: org.h2.Driver
+
+# Mock external services for tests
+external-services:
+  cui-integration-service:
+    base-url: http://localhost:8080
+  idp-proxy:
+    base-url: http://localhost:8081
+  account-management:
+    base-url: http://localhost:8082
+
+# Disable security for tests
+security:
+  api-key: test-key
+
+logging:
+  level:
+    com.thousandeyes.cui.mcp: DEBUG
+    org.springframework.web: INFO

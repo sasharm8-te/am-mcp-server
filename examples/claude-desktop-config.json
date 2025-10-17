@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "cui-integration": {
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "--network", "host",
+        "-e", "MCP_API_KEY=your-api-key-here",
+        "-e", "CUI_SERVICE_URL=http://localhost:8080",
+        "-e", "DB_URL=jdbc:mysql://localhost:3306/cui_integration",
+        "-e", "DB_USERNAME=cui_user",
+        "-e", "DB_PASSWORD=your-db-password",
+        "cui-mcp-server:latest"
+      ],
+      "env": {
+        "SPRING_PROFILES_ACTIVE": "docker"
+      }
+    }
+  }
+}

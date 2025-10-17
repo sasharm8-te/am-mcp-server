@@ -1,0 +1,124 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: cui-integration-mcp-server
+  
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+
+# MCP Server Configuration
+mcp:
+  server:
+    name: "CUI Integration MCP Server"
+    version: "1.0.0"
+    port: 8080
+    transport: "stdio"
+    tools:
+      enabled: true
+      timeout: 30000
+      rate-limit:
+        requests-per-minute: 100
+        burst-size: 10
+
+# Database Configuration
+database:
+  url: jdbc:mysql://account-management-001-ro.endpoint.proxy-c4zid1raukv7.us-west-1.rds.amazonaws.com
+  port: 3306
+  username: cui_integration_service-am
+  password: ryQX8lPVIQIbNufJnaO062PHhAp3DQ8m
+  driver-class-name: com.mysql.cj.jdbc.Driver
+  connection-pool:
+    maximum-pool-size: 10
+    minimum-idle: 2
+    connection-timeout: 30000
+    idle-timeout: 600000
+    max-lifetime: 1800000
+
+# External Services Configuration
+external-services:
+  cui-integration-service:
+    # base-url: ${CUI_SERVICE_URL:http://localhost:7081}
+    base-url: https://cui-integration-service-internal.int-svc.eks1.stg.sfo2.1keyes.net/
+    timeout: 30000
+    retry:
+      max-attempts: 3
+      backoff-delay: 1000
+  
+  idp-proxy:
+    base-url: https://idp-proxy-grpc.int-svc.eks1.stg.sfo2.1keyes.net/
+    timeout: 15000
+    retry:
+      max-attempts: 3
+      backoff-delay: 1000
+  
+  account-management:
+    base-url: https://account-management-service.int-svc.eks1.stg.sfo2.1keyes.net/
+    grpc-endpoint: ${AMS_GRPC_ENDPOINT:account-management-service.int-svc.eks1.stg.sfo2.1keyes.net}
+    grpc-use-tls: ${AMS_GRPC_USE_TLS:true}
+    timeout: 15000
+    retry:
+      max-attempts: 3
+      backoff-delay: 1000
+
+# Security Configuration
+security:
+  api-key: ${MCP_API_KEY:}
+  allowed-origins: ${ALLOWED_ORIGINS:*}
+
+# Management and Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+      percentiles-histogram:
+        http.server.requests: true
+
+# Logging Configuration
+logging:
+  level:
+    com.thousandeyes.cui.mcp: INFO
+    org.springframework.web: INFO
+    org.springframework.jdbc: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+---
+# Docker Profile
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+database:
+  url: jdbc:mysql://mysql:3306/cui_integration
+
+external-services:
+  cui-integration-service:
+    # base-url: http://cui-integration-service:8080
+    base-url: https://cui-integration-service-internal.int-svc.eks1.stg.sfo2.1keyes.net/
+
+---
+# Local Development Profile
+spring:
+  config:
+    activate:
+      on-profile: local
+
+logging:
+  level:
+    com.thousandeyes.cui.mcp: DEBUG

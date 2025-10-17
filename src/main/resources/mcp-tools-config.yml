@@ -1,0 +1,222 @@
+tools:
+  user-management:
+    - name: "get_user_by_id"
+      description: "Retrieve user details by UID or email"
+      category: "user"
+      parameters:
+        - name: "identifier"
+          type: "string"
+          required: true
+          description: "User ID (numeric) or email address"
+        - name: "include_cui_metadata"
+          type: "boolean"
+          required: false
+          default: true
+          description: "Include CUI-specific metadata"
+    
+    - name: "get_user_organizations"
+      description: "Get all organizations a user belongs to"
+      category: "user"
+      parameters:
+        - name: "user_email"
+          type: "string"
+          required: true
+          description: "User's email address"
+    
+    - name: "sync_user_profile"
+      description: "Synchronize user profile information"
+      category: "user"
+      parameters:
+        - name: "uid"
+          type: "integer"
+          required: true
+          description: "User ID"
+    
+    - name: "create_user_in_tenant"
+      description: "Create user in CUI tenant"
+      category: "user"
+      parameters:
+        - name: "uid"
+          type: "integer"
+          required: false
+          description: "User ID (null for SP-initiated SAML JIT)"
+        - name: "aid"
+          type: "integer"
+          required: true
+          description: "Account group ID"
+    
+    - name: "sync_user_tenants"
+      description: "Sync user across all their tenants"
+      category: "user"
+      parameters:
+        - name: "uid"
+          type: "integer"
+          required: true
+          description: "User ID"
+    
+    - name: "get_user_cui_metadata"
+      description: "Retrieve CUI-specific user metadata"
+      category: "user"
+      parameters:
+        - name: "uid"
+          type: "integer"
+          required: true
+          description: "User ID"
+
+  organization-management:
+    - name: "get_organization_details"
+      description: "Retrieve organization information"
+      category: "organization"
+      parameters:
+        - name: "org_id"
+          type: "integer"
+          required: true
+          description: "Organization ID"
+    
+    - name: "get_cui_tenant_details"
+      description: "Get CUI tenant configuration for organization"
+      category: "organization"
+      parameters:
+        - name: "org_id"
+          type: "integer"
+          required: true
+          description: "Organization ID"
+    
+    - name: "check_tenant_control_enabled"
+      description: "Verify if CUI tenant control is active"
+      category: "organization"
+      parameters:
+        - name: "org_id"
+          type: "integer"
+          required: true
+          description: "Organization ID"
+    
+    - name: "set_password_policy"
+      description: "Configure organization password policies"
+      category: "organization"
+      parameters:
+        - name: "org_id"
+          type: "integer"
+          required: true
+          description: "Organization ID"
+        - name: "pci_compliance_enabled"
+          type: "boolean"
+          required: true
+          description: "Enable PCI compliance"
+    
+    - name: "get_tenant_mapping_status"
+      description: "Check tenant mapping synchronization status"
+      category: "organization"
+      parameters:
+        - name: "org_id"
+          type: "integer"
+          required: true
+          description: "Organization ID"
+
+  sync-management:
+    - name: "get_sync_retry_status"
+      description: "Monitor failed synchronization attempts"
+      category: "sync"
+      parameters:
+        - name: "page"
+          type: "integer"
+          required: false
+          default: 0
+          description: "Page number for pagination"
+        - name: "size"
+          type: "integer"
+          required: false
+          default: 20
+          description: "Page size"
+        - name: "entity_type"
+          type: "string"
+          required: false
+          description: "Filter by entity type (USER, ORGANIZATION)"
+    
+    - name: "trigger_user_sync_retry"
+      description: "Manually retry failed user synchronizations"
+      category: "sync"
+      parameters:
+        - name: "uid"
+          type: "integer"
+          required: true
+          description: "User ID"
+        - name: "org_id"
+          type: "integer"
+          required: false
+          description: "Specific organization ID"
+    
+    - name: "trigger_org_sync_retry"
+      description: "Manually retry failed organization synchronizations"
+      category: "sync"
+      parameters:
+        - name: "org_id"
+          type: "integer"
+          required: true
+          description: "Organization ID"
+        - name: "sync_type"
+          type: "string"
+          required: false
+          description: "Type of sync (TENANT_MIRROR, SSO_CONFIG)"
+    
+    - name: "get_sync_metrics"
+      description: "Retrieve synchronization performance metrics"
+      category: "sync"
+      parameters:
+        - name: "time_range"
+          type: "string"
+          required: false
+          default: "24h"
+          description: "Time range (1h, 24h, 7d, 30d)"
+        - name: "metric_type"
+          type: "string"
+          required: false
+          description: "Specific metric type"
+    
+    - name: "clear_retry_queue"
+      description: "Clear specific retry entries"
+      category: "sync"
+      parameters:
+        - name: "entity_id"
+          type: "string"
+          required: true
+          description: "Entity identifier"
+        - name: "entity_type"
+          type: "string"
+          required: true
+          description: "Entity type (USER, ORGANIZATION)"
+
+  monitoring:
+    - name: "get_service_health"
+      description: "Check service health and dependencies"
+      category: "monitoring"
+      parameters: []
+    
+    - name: "get_sync_statistics"
+      description: "Retrieve synchronization statistics and trends"
+      category: "monitoring"
+      parameters:
+        - name: "time_range"
+          type: "string"
+          required: false
+          default: "24h"
+          description: "Time range for statistics"
+    
+    - name: "get_kafka_stream_status"
+      description: "Monitor Kafka streams health"
+      category: "monitoring"
+      parameters: []
+    
+    - name: "get_database_connectivity"
+      description: "Check database connection status"
+      category: "monitoring"
+      parameters: []
+    
+    - name: "get_external_service_status"
+      description: "Verify external service connectivity"
+      category: "monitoring"
+      parameters:
+        - name: "service_name"
+          type: "string"
+          required: false
+          description: "Specific service (CUI_INTEGRATION_SERVICE, IDP_PROXY, AMS)"
