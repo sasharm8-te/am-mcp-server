@@ -1,6 +1,6 @@
-# CUI Integration MCP Server
+# Account Management MCP Server
 
-A Model Context Protocol (MCP) server that provides standardized access to the CUI Integration Service functionality. This server enables AI assistants and other tools to interact with user management, organization operations, synchronization monitoring, and system diagnostics through a unified interface.
+A Model Context Protocol (MCP) server that provides standardized access to Account Management Service functionality. This server enables AI assistants and other tools to interact with user management, organization operations, synchronization monitoring, and system diagnostics through a unified interface.
 
 ## 🚀 Features
 

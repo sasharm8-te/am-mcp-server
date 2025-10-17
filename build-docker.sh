@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# CUI Integration MCP Server Docker Build Script
+# Account Management MCP Server Docker Build Script
 
 # Configuration
-IMAGE_NAME="cui-integration-mcp-server"
+IMAGE_NAME="am-mcp-server"
 VERSION="1.0.0"
 REGISTRY="your-registry.com"  # Replace with your registry
 

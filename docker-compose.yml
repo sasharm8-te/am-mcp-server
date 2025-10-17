@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  cui-mcp-server:
+  am-mcp-server:
     build: .
-    container_name: cui-mcp-server
+    container_name: am-mcp-server
     ports:
       - "8080:8080"
     environment:

@@ -1,4 +1,4 @@
-# Use official OpenJDK image
+# Account Management MCP Server - Multi-stage build
 FROM openjdk:17-jdk-slim
 
 # Set working directory

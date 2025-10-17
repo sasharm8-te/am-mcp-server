@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: cui-integration-mcp-server
+    name: am-mcp-server
   
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
@@ -11,7 +11,7 @@ spring:
 # MCP Server Configuration
 mcp:
   server:
-    name: "CUI Integration MCP Server"
+    name: "Account Management MCP Server"
     version: "1.0.0"
     port: 8080
     transport: "stdio"
@@ -90,7 +90,7 @@ management:
 # Logging Configuration
 logging:
   level:
-    com.thousandeyes.cui.mcp: INFO
+    com.thousandeyes.am.mcp: INFO
     org.springframework.web: INFO
     org.springframework.jdbc: DEBUG
   pattern:
@@ -121,4 +121,4 @@ spring:
 
 logging:
   level:
-    com.thousandeyes.cui.mcp: DEBUG
+    com.thousandeyes.am.mcp: DEBUG

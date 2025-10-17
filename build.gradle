@@ -5,7 +5,7 @@ plugins {
     id 'io.freefair.lombok' version '8.4'
 }
 
-group = 'com.thousandeyes.cui.mcp'
+group = 'com.thousandeyes.am.mcp'
 version = '1.0.0'
 
 java {
@@ -76,6 +76,6 @@ jar {
 }
 
 bootJar {
-    archiveFileName = 'cui-mcp-server.jar'
+    archiveFileName = 'am-mcp-server.jar'
 }
 
