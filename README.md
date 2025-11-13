@@ -9,24 +9,24 @@ A Model Context Protocol (MCP) server that provides standardized access to Accou
 #### 👥 User Management
 - `get_user_by_id` - Retrieve user details by UID or email
 - `get_user_organizations` - Get all organizations a user belongs to
-- `sync_user_profile` - Synchronize user profile information
-- `create_user_in_tenant` - Create user in CUI tenant
-- `sync_user_tenants` - Sync user across all their tenants
+- `sync_user_profile` - Synchronize user profile information (Not implemented)
+- `create_user_in_tenant` - Create user in CUI tenant (Not implemented)
+- `sync_user_tenants` - Sync user across all their tenants (Not implemented)
 - `get_user_cui_metadata` - Retrieve CUI-specific user metadata
 
 #### 🏢 Organization Management
 - `get_organization_details` - Retrieve organization information
 - `get_cui_tenant_details` - Get CUI tenant configuration
 - `check_tenant_control_enabled` - Verify CUI tenant control status
-- `set_password_policy` - Configure organization password policies
+- `set_password_policy` - Configure organization password policies (Not implemented)
 - `get_tenant_mapping_status` - Check tenant mapping sync status
 
 #### 🔄 Synchronization Management
 - `get_sync_retry_status` - Monitor failed synchronization attempts
-- `trigger_user_sync_retry` - Manually retry failed user syncs
-- `trigger_org_sync_retry` - Manually retry failed organization syncs
+- `trigger_user_sync_retry` - Manually retry failed user syncs (Not implemented)
+- `trigger_org_sync_retry` - Manually retry failed organization syncs (Not implemented)
 - `get_sync_metrics` - Retrieve synchronization performance metrics
-- `clear_retry_queue` - Clear specific retry entries
+- `clear_retry_queue` - Clear specific retry entries (Not implemented)
 
 #### 📊 Monitoring & Diagnostics
 - `get_service_health` - Check service health and dependencies
@@ -62,7 +62,7 @@ CUI Integration MCP Server
 - Docker & Docker Compose
 - Access to CUI Integration Service database
 
-### 1. Using Docker Compose (Recommended)
+### 1. Using Docker Compose (Not yet working)
 
 ```bash
 # Clone the repository
@@ -93,6 +93,11 @@ DB_PASSWORD=cui_password \
 CUI_SERVICE_URL=http://localhost:8080 \
 java -jar build/libs/am-mcp-server.jar
 ```
+or
+```
+cd am-mcp-server
+java -jar build/libs/am-mcp-server.jar
+```
 
 ### 3. Docker Build Only
 
@@ -114,39 +119,9 @@ docker run -p 8080:8080 \
 
 ## 🔧 Configuration
 
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SPRING_PROFILES_ACTIVE` | Active Spring profile | `local` |
-| `DB_URL` | Database connection URL | `jdbc:mysql://localhost:3306/cui_integration` |
-| `DB_USERNAME` | Database username | `cui_user` |
-| `DB_PASSWORD` | Database password | `cui_password` |
-| `CUI_SERVICE_URL` | CUI Integration Service URL | `http://localhost:8080` |
-| `MCP_API_KEY` | API key for authentication | (optional) |
-| `ALLOWED_ORIGINS` | CORS allowed origins | `*` |
-
 ### Application Configuration
 
-The server uses `application.yml` for configuration. Key sections:
-
-```yaml
-mcp:
-  server:
-    name: "CUI Integration MCP Server"
-    tools:
-      enabled: true
-      timeout: 30000
-
-database:
-  url: ${DB_URL}
-  username: ${DB_USERNAME}
-  password: ${DB_PASSWORD}
-
-external-services:
-  cui-integration-service:
-    base-url: ${CUI_SERVICE_URL}
-```
+The server uses `application.yml` for configuration.
 
 ## 🤖 MCP Client Configuration
 
@@ -157,41 +132,11 @@ Add to your Claude Desktop configuration:
 ```json
 {
   "mcpServers": {
-    "cui-integration": {
-      "command": "docker",
-      "args": [
-        "run", "--rm", "-i",
-        "--network", "host",
-        "-e", "MCP_API_KEY=your-api-key",
-        "-e", "CUI_SERVICE_URL=http://localhost:8080",
-        "-e", "DB_URL=jdbc:mysql://localhost:3306/cui_integration",
-        "-e", "DB_USERNAME=cui_user",
-        "-e", "DB_PASSWORD=cui_password",
-        "cui-mcp-server:latest"
-      ]
-    }
-  }
-}
-```
-
-### Cline/Continue
-
-```json
-{
-  "mcp": {
-    "servers": {
-      "cui-integration": {
-        "transport": "stdio",
-        "command": "docker",
-        "args": [
-          "run", "--rm", "-i",
-          "--network", "host",
-          "cui-mcp-server:latest"
-        ],
-        "env": {
-          "CUI_SERVICE_URL": "http://localhost:8080",
-          "DB_URL": "jdbc:mysql://localhost:3306/cui_integration"
-        }
+    "am-mcp": {
+      "command": "python3",
+      "args": ["<path to file cursor-mcp-client.py>"],
+      "env": {
+        "MCP_SERVER_URL": "http://localhost:6080/mcp"
       }
     }
   }
@@ -313,8 +258,6 @@ curl -X POST http://localhost:8080/mcp/tools/list \
   -d '{"jsonrpc": "2.0", "id": "1", "method": "tools/list", "params": {}}'
 ```
 
-## 🚀 Deployment
-
 ### Production Deployment
 
 1. **Build the application**:
@@ -375,10 +318,6 @@ curl -X POST http://localhost:8080/mcp/tools/list \
 4. Commit your changes: `git commit -am 'Add new MCP tool'`
 5. Push to the branch: `git push origin feature/new-tool`
 6. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
