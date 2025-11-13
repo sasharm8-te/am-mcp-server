@@ -91,7 +91,7 @@ DB_URL=jdbc:mysql://localhost:3306/cui_integration \
 DB_USERNAME=cui_user \
 DB_PASSWORD=cui_password \
 CUI_SERVICE_URL=http://localhost:8080 \
-java -jar build/libs/cui-mcp-server.jar
+java -jar build/libs/am-mcp-server.jar
 ```
 
 ### 3. Docker Build Only
