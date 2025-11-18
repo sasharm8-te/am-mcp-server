@@ -5,67 +5,21 @@ services:
     build: .
     container_name: am-mcp-server
     ports:
-      - "8080:8080"
+      - "6080:6080"
+    # Application uses database config from application.yml
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - DB_USERNAME=cui_user
-      - DB_PASSWORD=cui_password
-      - CUI_SERVICE_URL=http://cui-integration-service:8080
-      - MCP_API_KEY=${MCP_API_KEY:-default-api-key}
-    depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - cui-network
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-local}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:6080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
-
-  mysql:
-    image: mysql:8.0
-    container_name: cui-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: cui_integration
-      MYSQL_USER: cui_user
-      MYSQL_PASSWORD: cui_password
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     networks:
-      - cui-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    command: --default-authentication-plugin=mysql_native_password
-
-  # Optional: Add the actual CUI Integration Service for testing
-  # cui-integration-service:
-  #   image: cui-integration-service:latest
-  #   container_name: cui-integration-service
-  #   ports:
-  #     - "8081:8080"
-  #   environment:
-  #     - SPRING_PROFILES_ACTIVE=docker
-  #   networks:
-  #     - cui-network
-  #   restart: unless-stopped
-
-volumes:
-  mysql_data:
-    driver: local
+      - am-mcp-network
 
 networks:
-  cui-network:
+  am-mcp-network:
     driver: bridge
-    name: cui-network
+    name: am-mcp-network

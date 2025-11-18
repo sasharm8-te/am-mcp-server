@@ -58,28 +58,84 @@ CUI Integration MCP Server
 
 ### Prerequisites
 
-- Java 21+
+- Java 17+
 - Docker & Docker Compose
-- Access to CUI Integration Service database
+- MCP-compatible client (Cursor, Claude Desktop, etc.)
 
-### 1. Using Docker Compose (Not yet working)
+### 1. 🐳 Using Docker (Recommended for MCP Clients)
+
+**Step 1: Build the Docker image**
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd cui-integration-mcp-server
+# Build JAR and Docker image
+./gradlew buildImage
 
-# Set environment variables
-export MCP_API_KEY="your-api-key"
-export CUI_SERVICE_URL="http://your-cui-service:8080"
+# Tag the image
+IMAGE_ID=$(docker images -q | head -1)
+docker tag $IMAGE_ID accounting/am-mcp-server:latest
+docker tag $IMAGE_ID accounting/am-mcp-server:1.0.0
 
-# Build and start services
-docker-compose up --build
-
-# The MCP server will be available at http://localhost:8080
+# Verify
+docker images | grep am-mcp-server
 ```
 
-### 2. Local Development
+**Step 2: Run the docker**
+```
+# Start the server as a persistent container
+docker run -d \
+  --name am-mcp-server \
+  -p 6080:6080 \
+  -e SPRING_PROFILES_ACTIVE=local \
+  accounting/am-mcp-server:latest
+
+# Wait a few seconds for startup, then try again
+---
+```
+
+**Step 3: Configure your MCP client**
+
+Add to your MCP configuration file:
+- **Cursor**: `~/.cursor/mcp.json`
+- **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "am-mcp": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network=host",
+        "-e",
+        "SPRING_PROFILES_ACTIVE=local",
+        "accounting/am-mcp-server:latest",
+        "--stdio"
+      ],
+      "env": {
+        "MCP_SERVER_URL": "http://localhost:6080/mcp"
+      }
+    }
+  }
+}
+```
+
+**Why `--network=host` instead of `-p 6080:6080`?**
+- STDIO mode requires the container to connect back to localhost
+- `--network=host` allows the container to access your local database
+- The container starts/stops automatically with each MCP request
+- For persistent HTTP server mode, use `-p 6080:6080` instead (see Docker HTTP Mode section)
+
+**Step 3: Restart your MCP client**
+
+The `am-mcp` tools will now be available! The Docker container will:
+- Start automatically when your MCP client connects
+- Run the Spring Boot server in the background
+- Connect via STDIO mode for seamless integration
+- Stop when your MCP client disconnects
+
+### 2. 🔨 Local Development
 
 ```bash
 # Build the application
@@ -87,35 +143,101 @@ docker-compose up --build
 
 # Run with local profile
 SPRING_PROFILES_ACTIVE=local \
-DB_URL=jdbc:mysql://localhost:3306/cui_integration \
-DB_USERNAME=cui_user \
-DB_PASSWORD=cui_password \
-CUI_SERVICE_URL=http://localhost:8080 \
-java -jar build/libs/am-mcp-server.jar
-```
-or
-```
-cd am-mcp-server
 java -jar build/libs/am-mcp-server.jar
 ```
 
-### 3. Docker Build Only
+Then configure your MCP client to use the local Python wrapper:
+
+```json
+{
+  "mcpServers": {
+    "am-mcp": {
+      "command": "python3",
+      "args": ["/path/to/am-mcp-server/scripts/cursor-mcp-client.py"],
+      "env": {
+        "MCP_SERVER_URL": "http://localhost:6080/mcp"
+      }
+    }
+  }
+}
+```
+
+### 3. 🚀 Docker HTTP Mode (For persistent server or direct API access)
 
 ```bash
-# Build the JAR
-./gradlew bootJar
+# Run as a standalone HTTP server
+docker run -d \
+  --name am-mcp-server \
+  -p 6080:6080 \
+  -e SPRING_PROFILES_ACTIVE=local \
+  accounting/am-mcp-server:latest
 
-# Build Docker image
-docker build -t cui-mcp-server:latest .
+# The MCP server will be available at http://localhost:6080/mcp
 
-# Run container
-docker run -p 8080:8080 \
-  -e DB_URL=jdbc:mysql://host.docker.internal:3306/cui_integration \
-  -e DB_USERNAME=cui_user \
-  -e DB_PASSWORD=cui_password \
-  -e CUI_SERVICE_URL=http://host.docker.internal:8080 \
-  cui-mcp-server:latest
+# Test it
+curl http://localhost:6080/actuator/health
+
+# Or use Docker Compose
+docker-compose up -d
 ```
+
+**Note:** In HTTP mode, the container runs continuously. For MCP clients (Cursor/Claude), use the Docker STDIO mode shown in the Quick Start section instead.
+
+---
+
+## 📖 Detailed Docker Setup
+
+For comprehensive Docker setup instructions, troubleshooting, and advanced configurations, see:
+
+**[📘 Docker Setup Guide](docker-setup.md)**
+
+This guide includes:
+- teDocker deployment for ThousandEyes internal use
+- Docker registry configuration
+- STDIO vs HTTP mode details
+- Complete troubleshooting section
+- CI/CD integration examples
+
+---
+
+## 🧪 Testing the MCP Server
+
+### Test with Docker (Recommended)
+
+```bash
+# Using the built image with STDIO mode
+docker run --rm -i --network=host \
+  -e SPRING_PROFILES_ACTIVE=local \
+  accounting/am-mcp-server:latest \
+  --stdio
+
+# Send a test request (type this and press Enter)
+{"jsonrpc":"2.0","id":1,"method":"tools/list"}
+
+# Or test HTTP mode
+docker run -d --name am-mcp-test \
+  -p 6080:6080 \
+  -e SPRING_PROFILES_ACTIVE=local \
+  accounting/am-mcp-server:latest
+
+# Test the health endpoint
+curl http://localhost:6080/actuator/health
+
+# Test an MCP tool
+curl -X POST http://localhost:6080/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+
+# Clean up
+docker stop am-mcp-test && docker rm am-mcp-test
+```
+
+### Test with MCP Client
+
+Once configured in Cursor or Claude Desktop, try these commands:
+- "Get organization details for org ID 1"
+- "Get user details for user ID 12345"
+- "Check service health"
 
 ## 🔧 Configuration
 
@@ -125,16 +247,25 @@ The server uses `application.yml` for configuration.
 
 ## 🤖 MCP Client Configuration
 
-### Claude Desktop
+### Cursor
 
-Add to your Claude Desktop configuration:
+Add to `~/.cursor/mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "am-mcp": {
-      "command": "python3",
-      "args": ["<path to file cursor-mcp-client.py>"],
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network=host",
+        "-e",
+        "SPRING_PROFILES_ACTIVE=local",
+        "accounting/am-mcp-server:latest",
+        "--stdio"
+      ],
       "env": {
         "MCP_SERVER_URL": "http://localhost:6080/mcp"
       }
@@ -142,6 +273,55 @@ Add to your Claude Desktop configuration:
   }
 }
 ```
+
+### Claude Desktop
+
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "am-mcp": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network=host",
+        "-e",
+        "SPRING_PROFILES_ACTIVE=local",
+        "accounting/am-mcp-server:latest",
+        "--stdio"
+      ],
+      "env": {
+        "MCP_SERVER_URL": "http://localhost:6080/mcp"
+      }
+    }
+  }
+}
+```
+
+**Note:** After updating the configuration, restart your MCP client for changes to take effect.
+
+### Alternative: Local Development Mode
+
+For local development without Docker:
+
+```json
+{
+  "mcpServers": {
+    "am-mcp": {
+      "command": "python3",
+      "args": ["/path/to/am-mcp-server/scripts/cursor-mcp-client.py"],
+      "env": {
+        "MCP_SERVER_URL": "http://localhost:6080/mcp"
+      }
+    }
+  }
+}
+```
+
+Make sure the Spring Boot server is running separately with `./gradlew bootRun`.
 
 ## 📚 Documentation
 

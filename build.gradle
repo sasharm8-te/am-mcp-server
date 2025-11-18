@@ -3,6 +3,8 @@ plugins {
     id 'org.springframework.boot' version '3.2.0'
     id 'io.spring.dependency-management' version '1.1.4'
     id 'io.freefair.lombok' version '8.4'
+    id 'com.thousandeyes.gradle.te-docker' version '4.10.0'
+    id 'com.thousandeyes.gradle.te-release' version '4.10.0'
 }
 
 group = 'com.thousandeyes.am.mcp'
@@ -11,6 +13,28 @@ version = '1.0.0'
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
+
+teDocker {
+    imageName 'accounting/am-mcp-server'
+    registry 'artifactory.thousandeyes.com'
+}
+
+// TODO these are workarounds until the teRelease plugin and teDocker plugin get updated to correctly remap tasks.
+if (tasks.findByName('publish') == null) {
+    tasks.register('publish') {
+        dependsOn tasks.named('pushImage')
+    }
+}
+else {
+    tasks.named("publish") {
+        dependsOn tasks.named('pushImage')
+    }
+}
+// TODO end of workaround
+
+teRelease {
+    releaseBuildTasks = ['publish']
 }
 
 repositories {
@@ -77,5 +101,28 @@ jar {
 
 bootJar {
     archiveFileName = 'am-mcp-server.jar'
+}
+
+// Copy JAR to docker resources for te-docker plugin
+task copyJarToDockerResources(type: Copy) {
+    dependsOn bootJar
+    from bootJar.archiveFile
+    into 'src/main/docker/resources'
+}
+
+// Copy Dockerfile and resources to build/docker for te-docker plugin
+task copyDockerfile(type: Copy) {
+    from 'src/docker/Dockerfile'
+    into 'build/docker'
+}
+
+task copyDockerResources(type: Copy) {
+    from 'src/docker/resources'
+    into 'build/docker/resources'
+}
+
+// Make buildImage depend on copying everything
+tasks.named('buildImage') {
+    dependsOn copyJarToDockerResources, copyDockerfile, copyDockerResources
 }
 

@@ -5,7 +5,11 @@
 # Configuration
 IMAGE_NAME="am-mcp-server"
 VERSION="1.0.0"
-REGISTRY="your-registry.com"  # Replace with your registry
+# Replace with your registry:
+# - GitHub: ghcr.io/YOUR_GITHUB_ORG
+# - Docker Hub: docker.io/YOUR_USERNAME (or just YOUR_USERNAME)
+# - Self-hosted: your-server.com:5000
+REGISTRY="ghcr.io/YOUR_GITHUB_ORG"
 
 # Build the Docker image
 echo "Building Docker image..."
